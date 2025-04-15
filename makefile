@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -I. -I/usr/include/gtest -I/usr/include/gtest/internal
+CFLAGS = -I. -I/usr/include/gtest -I/usr/include/gtest/internal -O3
 LDFLAGS = -lgtest -lgtest_main -lpthread
 
 TEST ?=
@@ -15,6 +15,9 @@ SRC = util/hash_test.cc
 endif
 ifeq ($(TEST),CacheTest)
 SRC = util/cache_test.cc
+endif
+ifeq ($(TEST),TableTest)
+SRC = db/table_test.cc
 endif
 
 TARGET = build/output
