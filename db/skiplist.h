@@ -18,6 +18,43 @@ namespace kvdb
         struct Node;
 
     public:
+        class Iterator
+        {
+        public:
+            Iterator(const SkipList *list) : list_(list)
+            {
+                node_ = list_->head_->Next(0);
+            };
+
+            bool Valid() const
+            {
+                return node_ != nullptr;
+            };
+
+            const K &key() const
+            {
+                return node_->key();
+            };
+            const V &value() const
+            {
+                return node_->value();
+            };
+
+            const KType type() const
+            {
+                return node_->ktype();
+            }
+
+            void Next()
+            {
+                node_ = node_->Next(0);
+            };
+
+        private:
+            const SkipList *list_;
+            Node *node_;
+        };
+
         SkipList();
 
         // insert key into skiplist
@@ -36,6 +73,7 @@ namespace kvdb
         std::atomic<int> max_height_;
 
         Node *FindNodeEqual(const K &key, Node **prev) const;
+        Node *FindNodeless(const K &key, Node **prev) const;
         int RandomHeight();
 
         Random rnd_;
@@ -116,6 +154,27 @@ namespace kvdb
         return now;
     }
 
+    // insert使用，相同key值新node排前面
+    template <typename K, typename V>
+    struct SkipList<K, V>::Node *SkipList<K, V>::FindNodeless(const K &key, Node **prev) const
+    {
+        Node *now = head_;
+
+        int height = GetMaxHeight();
+        while (height--)
+        {
+            Node *next = now->Next(height);
+            while (next != nullptr && next->key() < key)
+            {
+                now = next;
+                next = now->Next(height);
+            }
+            if (prev != nullptr)
+                prev[height] = now;
+        }
+        return now;
+    }
+
     template <typename K, typename V>
     bool SkipList<K, V>::Contains(const K &key) const
     {
@@ -144,7 +203,7 @@ namespace kvdb
 
         K &key = kvnode->key;
         Node *prev[KMaxHeight];
-        Node *x = FindNodeEqual(key, prev);
+        Node *x = FindNodeless(key, prev);
 
         int height = RandomHeight();
         if (height > GetMaxHeight())
@@ -169,9 +228,9 @@ namespace kvdb
         Node *x = FindNodeEqual(key, nullptr);
 
         // 找到node有三种情况，找不到证明可能持久化可能不存在return nullptr
-        // 找到判断type, ktype == delete 证明删除了 返回nullptr
+        // 找到判断type, ktype == delete 证明删除了 返回ketypedelet
         // ktype == value 才返回kvnode
-        return (x != head_ && x != nullptr && x->key() == key && x->ktype() == KType::kTypeValue) ? x->kvnode_ : nullptr;
+        return (x != head_ && x != nullptr && x->key() == key) ? x->kvnode_ : nullptr;
     }
 }
 #endif

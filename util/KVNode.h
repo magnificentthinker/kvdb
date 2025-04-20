@@ -9,6 +9,7 @@ namespace kvdb
         kTypeDelete = 0x1,
     };
 
+    // 为了后续处理方便 key,value应被转换为字节流
     template <typename K, typename V>
     struct KVnode
     {

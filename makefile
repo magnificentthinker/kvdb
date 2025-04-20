@@ -19,6 +19,12 @@ endif
 ifeq ($(TEST),TableTest)
 SRC = db/table_test.cc
 endif
+ifeq ($(TEST),MemtableTest)
+SRC = db/memtable_test.cc
+endif
+ifeq ($(TEST),FileTest)
+SRC = util/writablefile_test.cc
+endif
 
 TARGET = build/output
 
