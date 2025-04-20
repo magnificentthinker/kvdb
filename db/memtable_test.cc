@@ -15,7 +15,7 @@ using IntTable = kvdb::Table<int, int>;
 
 TEST(TableTest, StressTestWithLargeData)
 {
-    const int capacity = 20;
+    const int capacity = 500000;
     StringTable table(capacity);
 
     // 插入大量数据，测试 LRU 性能和内存释放
@@ -29,7 +29,9 @@ TEST(TableTest, StressTestWithLargeData)
     {
         std::string a = std::to_string(i);
         auto it = table.Get(a);
-
+        if (it == nullptr)
+            std::cout << i << '\n';
+        ASSERT_TRUE(it != nullptr);
         ASSERT_EQ(*it, a);
     }
 }

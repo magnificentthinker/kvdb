@@ -25,6 +25,9 @@ endif
 ifeq ($(TEST),FileTest)
 SRC = util/writablefile_test.cc
 endif
+ifeq ($(TEST),BlockTest)
+SRC = db/blockbuilder_test.cc
+endif
 
 TARGET = build/output
 

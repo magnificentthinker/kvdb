@@ -1,8 +1,46 @@
 #ifndef STROAGE_KVDB_UTIL_VARINT_H
 #define STROAGE_KVDB_UTIL_VARINT_H
 #include <assert.h>
+#include <string>
 namespace kvdb
 {
+
+    void putvarint(int num, std::string *buf)
+    {
+
+        do
+        {
+            char byte = static_cast<char>(num & 0x7F);
+            num >>= 7;
+            if (num != 0)
+            {
+                byte |= 0x80;
+            }
+            buf->append(1, byte);
+        } while (num != 0);
+    }
+
+    void putint(int num, std::string *buf)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            char byte = static_cast<unsigned char>(num & 0xFF);
+            num >>= 8;
+            buf->append(1, byte);
+        }
+    }
+
+    int int_deconde(const char *buf)
+    {
+
+        int num = 0;
+        for (int i = 3; i >= 0; --i)
+        {
+            num <<= 8;
+            num |= static_cast<unsigned char>(buf[i]);
+        }
+        return num;
+    }
 
     // Varint 编码函数 返回length
     int varint_encode(int num, char *buf)
